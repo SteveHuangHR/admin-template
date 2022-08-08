@@ -1,6 +1,6 @@
 import axios from 'axios'
 const request = axios.create({
-  baseUrl: ''
+  baseURL: 'http://ihrm-java.itheima.net/'
 })
 // 请求拦截器
 request.interceptors.request.use(config => {
