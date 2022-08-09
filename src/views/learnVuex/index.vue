@@ -21,6 +21,7 @@
     <div>num={{ num }}</div>
     <button @click="addNum(6)">点击</button>
     <button @click="addNumSync(10)">点击</button>
+    <button @click="addNumSync(15)">点击</button>
     <!-- 图标使用 -->
     <div>
       <svg-icon icon-class="eye" class-name="color-red"></svg-icon>
