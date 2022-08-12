@@ -61,8 +61,9 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+
       // 因为产品、运营需要统计数据（用户从哪里进入登录的，专业名称做埋点）
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }
 }

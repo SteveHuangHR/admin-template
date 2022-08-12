@@ -61,27 +61,47 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path: '/employees',
-    component: Layout,
-    children: [
-      {
-        path: '',
-        name: 'employee',
-        component: () => import('@/views/employee/index.vue'),
-        meta: { title: '员工', icon: 'dashboard' }
-      }
-    ]
-  },
+  // {
+  //   path: '/employees',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: '',
+  //       name: 'employee',
+  //       component: () => import('@/views/employee/index.vue'),
+  //       meta: { title: '员工', icon: 'dashboard' }
+  //     }
+  //   ]
+  // },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
+// 引入多个模块的规则
+import approvalsRouter from './modules/approvals'
+import departmentsRouter from './modules/departments'
+import employeesRouter from './modules/employees'
+import permissionRouter from './modules/permission'
+import attendancesRouter from './modules/attendances'
+import salarysRouter from './modules/salarys'
+import settingRouter from './modules/setting'
+import socialRouter from './modules/social'
 
+// 动态路由,在这里调整顺序
+export const asyncRoutes = [
+  approvalsRouter,
+  departmentsRouter,
+  employeesRouter,
+  permissionRouter,
+  attendancesRouter,
+  salarysRouter,
+  settingRouter,
+  socialRouter
+]
 const createRouter = () =>
   new Router({
     // mode: 'history', // require service support
     scrollBehavior: () => ({ y: 0 }),
-    routes: constantRoutes
+    routes: [...constantRoutes, ...asyncRoutes]
   })
 
 const router = createRouter()
