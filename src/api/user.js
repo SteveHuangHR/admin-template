@@ -31,3 +31,14 @@ export function getEmplyeeBaseInfo(id) {
 export function logout() {
 
 }
+/**
+ *  新增部门接口
+ *
+ * ****/
+export function getEmplyeeSimple() {
+  return request({
+    url: '/sys/user/simple',
+    method: 'get'
+
+  })
+}
