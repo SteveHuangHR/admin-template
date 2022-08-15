@@ -3,7 +3,7 @@
     <div class="app-container">
       <el-card class="tree-card">
         <TreeTools :data="company">
-          <el-dropdown-item>添加子部门</el-dropdown-item>
+          <el-dropdown-item @click.native="onAdd(company)">添加子部门</el-dropdown-item>
         </TreeTools>
         <el-tree :data="list" :props="{ label: 'name' }" default-expand-all>
           <TreeTools slot-scope="{ data }" :data="data">
@@ -15,7 +15,7 @@
       </el-card>
     </div>
     <!-- <add-dept :show-dialog="showDialog" @update-show-dialog='showDialog=$event' ></add-dept> -->
-    <add-dept :show-dialog.sync="showDialog" :node="currentNodes" @success="getDepartments" ref='addDeptRef'></add-dept>
+    <add-dept ref="addDeptRef" :show-dialog.sync="showDialog" :node="currentNodes" @success="getDepartments"></add-dept>
   </div>
 </template>
 
@@ -35,7 +35,7 @@ export default {
     return {
       showDialog: false, // 控制新增对话框显示
       currentNodes: {}, // 当前操作部门
-      company: { name: '传智播客', manager: '负责人' },
+      company: { name: '传智播客', manager: '负责人', id: '' },
       list: [
         {
           name: '总裁办',

@@ -42,3 +42,9 @@ export function getEmplyeeSimple() {
 
   })
 }
+export function getCompanyInfo(id) {
+  return request({
+    url: `/company/${id}`,
+    method: 'get'
+  })
+}

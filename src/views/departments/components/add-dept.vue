@@ -82,13 +82,15 @@ export default {
   data() {
     const validateName = async(rule, value, callback) => {
       const name = this.form.name
+      const { depts } = await getDepartments()
       let brother
       if (this.form.id) {
-        const { depts } = await getDepartments()
+        // const { depts } = await getDepartments()
         brother = depts.filter(t => t.pid === this.node.pid && t.id !== this.node.id)
       } else {
         const parent = this.node
-        brother = parent.children
+        // brother = parent.children
+        brother = depts.filter(t => t.pid === parent.id)
       }
 
       const f = brother ? brother.find(t => t.name === name) : false
