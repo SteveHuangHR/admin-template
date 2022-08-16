@@ -15,6 +15,12 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 import '@/directives'
+// import '@/filters'
+// 单个注册
+// import { formatDate } from '@/filters/index.js'
+// Vue.filter('formatDate', formatDate)
+import * as filters from '@/filters/index.js'
+Object.keys(filters).forEach(key => Vue.filter(key, filters[key]))
 // import '@/components'
 import Ui from '@/components/index.js'
 Vue.use(Ui)
@@ -47,3 +53,6 @@ new Vue({
   store,
   render: h => h(App)
 })
+
+const date = new Date()
+console.log(filters.formatDate(date))
