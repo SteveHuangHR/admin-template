@@ -5,8 +5,8 @@
         <span slot="before">共计x条 </span>
         <template #after>
           <el-button size="small" type="danger" @click="onExport">普通excel导出</el-button>
-          <el-button size="small" type="info">复杂表头excel导出</el-button>
-          <el-button size="small" type="success">excel导入</el-button>
+          <el-button size="small" type="info" @click="onExport">复杂表头excel导出</el-button>
+          <el-button size="small" type="success" @click="$router.push('/import')">excel导入</el-button>
           <el-button
             size="small"
             type="primary"
@@ -53,7 +53,7 @@
           </el-table-column>
           <el-table-column label="操作" sortable="" fixed="right" width="280">
             <template v-slot="{ row }">
-              <el-button type="text" size="small">查看</el-button>
+              <el-button type="text" size="small" @click="$router.push('/employees/detail/'+row.id)">查看</el-button>
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
@@ -192,6 +192,8 @@ import EmployeeEnum from '@/api/constant/employees.js'
 import QrcodeVue from 'qrcode.vue'
 import { getDepartments } from '@/api/departments'
 import { tranListToTreeDate } from '@/utils'
+import { pick } from 'lodash'
+import { formatDate } from '@/filters'
 export default {
   name: 'Employees',
   components: {
@@ -309,9 +311,16 @@ export default {
         }
         const { rows } = await getEmployeeList({ page: 1, size: this.page.total })
         console.log(rows)
+        const data = rows.map(t => {
+          const n = pick(t, Object.values(headers))
+          n.timeOfEntry = formatDate(n.timeOfEntry)
+          n.correctionTime = formatDate(n.correctionTime)
+          n.formOfEmployment = this.$options.filters.formOfEmployment(n.formOfEmployment)
+          return Object.values(n)
+        })
         excel.export_json_to_excel({
           header: Object.keys(headers), // 表头 必填
-          data: [['zs', '5000'], ['ls', '8000']], // 具体数据 必填
+          data, // 具体数据 必填
           filename: 'excel-list', // 非必填
           autoWidth: true, // 非必填
           bookType: 'xls' // 非必填
