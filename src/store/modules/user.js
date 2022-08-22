@@ -33,6 +33,7 @@ export default {
       const u = await getUserBaseInfo()
       const e = await getEmplyeeBaseInfo(u.userId)
       context.commit('setUserInfo', { ...u, ...e })
+      return u
     },
     // 定义异步方法发请求
     async login(context, data) {

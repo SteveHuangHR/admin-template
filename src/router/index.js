@@ -65,7 +65,7 @@ export const constantRoutes = [
         hidden: true
       }
     ]
-  },
+  }
   // {
   //   path: '/employees',
   //   component: Layout,
@@ -79,7 +79,7 @@ export const constantRoutes = [
   //   ]
   // },
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 // 引入多个模块的规则
 import approvalsRouter from './modules/approvals'
