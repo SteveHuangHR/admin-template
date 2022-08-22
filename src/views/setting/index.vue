@@ -4,7 +4,11 @@
       <el-tabs>
         <el-tab-pane label="角色管理">
           <el-row>
-            <el-button type="primary" size="small" @click="showDialog=true">新增角色</el-button>
+            <el-button
+              type="primary"
+              size="small"
+              @click="showDialog = true"
+            >新增角色</el-button>
           </el-row>
           <el-table
             :data="list"
@@ -24,10 +28,22 @@
             <el-table-column label="描述" align="center" prop="description">
             </el-table-column>
             <el-table-column label="操作" align="center">
-              <template v-slot="{row}">
-                <el-button type="success" size="small">分配权限</el-button>
-                <el-button type="primary" size="small" @click="onUpdate(row.id)">编辑</el-button>
-                <el-button type="danger" size="small" @click="onDel(row.id)">删除</el-button>
+              <template v-slot="{ row }">
+                <el-button
+                  type="success"
+                  size="small"
+                  @click="onAssignPerm(row.id)"
+                >分配权限</el-button>
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="onUpdate(row.id)"
+                >编辑</el-button>
+                <el-button
+                  type="danger"
+                  size="small"
+                  @click="onDel(row.id)"
+                >删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -74,7 +90,7 @@
     <el-dialog
       :visible="showDialog"
       v-bind="$attrs"
-      :title="form.id?'编辑角色':'新增角色'"
+      :title="form.id ? '编辑角色' : '新增角色'"
       v-on="$listeners"
       @close="close"
     >
@@ -102,17 +118,48 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" type="flex" justify="center">
+      <el-row slot="footer" type="flex" justify="center">
         <el-button @click="close">取消</el-button>
         <el-button type="primary" @click="handelConfirm">确定</el-button>
-      </div>
+      </el-row>
+    </el-dialog>
+    <el-dialog title="分配权限" :visible.sync="showAssignPermDialog">
+      <!-- 树形控件 -->
+      <el-tree
+        ref="treeRef"
+        :data="permList"
+        :props="{ label: 'name' }"
+        default-expand-all
+        show-checkbox
+        node-key="id"
+        :default-checked-keys="checkedPermList"
+        check-strictly
+        @check-change="onCheckChange"
+      >
+      </el-tree>
+      <el-row slot="footer" type="flex" justify="center">
+        <el-button @click="showAssignPermDialog = false">取消</el-button>
+        <el-button
+          type="primary"
+          @click="handelAssignPermConfirm"
+        >确定</el-button>
+      </el-row>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import { getCompanyInfo } from '@/api/user.js'
-import { getRoleList, addRole, delRole, getRoleId, updataRole } from '@/api/setting.js'
+import {
+  getRoleList,
+  addRole,
+  delRole,
+  getRoleId,
+  updataRole,
+  assignPerm
+} from '@/api/setting.js'
+import { tranListToTreeDate } from '@/utils'
+import { getPermissionList } from '@/api/permission'
 export default {
   name: 'Setting',
   components: {},
@@ -129,7 +176,7 @@ export default {
       },
       form: {
         name: undefined,
-        region: undefined
+        description: undefined
       },
       rules: {
         name: [
@@ -139,8 +186,12 @@ export default {
             trigger: 'blur'
           }
         ],
-        region: []
-      }
+        description: []
+      },
+      showAssignPermDialog: false,
+      permList: [],
+      checkedPermList: [],
+      currentRoleId: undefined
     }
   },
   async created() {
@@ -149,6 +200,29 @@ export default {
   },
   mounted() {},
   methods: {
+    onCheckChange(item, isChecked) {
+      if (isChecked) {
+        this.checkedPermList.push(item.id)
+      } else {
+        const index = this.checkedPermList.findIndex((t) => item.id)
+        this.checkedPermList.splice(index, 1)
+      }
+    },
+    async onAssignPerm(id) {
+      this.currentRoleId = id
+      const { permIds } = await getRoleId(id)
+      this.checkedPermList = permIds
+      this.permList = tranListToTreeDate(await getPermissionList(), '0')
+      this.showAssignPermDialog = true
+    },
+    async handelAssignPermConfirm() {
+      await assignPerm({
+        id: this.currentRoleId,
+        permIds: this.$refs.treeRef.getCheckedKeys()
+      })
+      this.$message.success('操作成功')
+      this.showAssignPermDialog = false
+    },
     async onUpdate(id) {
       this.showDialog = true
       this.form = await getRoleId(id)
@@ -158,15 +232,15 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async action => {
-        await delRole(id)
-        // 提示成功
-        this.$message.success('删除成功')
-        // 刷新 列表
-        this.getRoleList()
-      }).catch(() => {
-
       })
+        .then(async(action) => {
+          await delRole(id)
+          // 提示成功
+          this.$message.success('删除成功')
+          // 刷新 列表
+          this.getRoleList()
+        })
+        .catch(() => {})
     },
     onCurrentChange(val) {
       this.page.page = val
@@ -185,7 +259,7 @@ export default {
       this.form = this.$options.data().form
     },
     handelConfirm() {
-      this.$refs['formRef'].validate(async valid => {
+      this.$refs['formRef'].validate(async(valid) => {
         if (!valid) return
         // 发请求
         if (this.form.id) {

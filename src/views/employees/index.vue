@@ -4,9 +4,21 @@
       <PageTools>
         <span slot="before">共计x条 </span>
         <template #after>
-          <el-button size="small" type="danger" @click="onExport">普通excel导出</el-button>
-          <el-button size="small" type="info" @click="onExport">复杂表头excel导出</el-button>
-          <el-button size="small" type="success" @click="$router.push('/import')">excel导入</el-button>
+          <el-button
+            size="small"
+            type="danger"
+            @click="onExport"
+          >普通excel导出</el-button>
+          <el-button
+            size="small"
+            type="info"
+            @click="onExport"
+          >复杂表头excel导出</el-button>
+          <el-button
+            size="small"
+            type="success"
+            @click="$router.push('/import')"
+          >excel导入</el-button>
           <el-button
             size="small"
             type="primary"
@@ -53,11 +65,19 @@
           </el-table-column>
           <el-table-column label="操作" sortable="" fixed="right" width="280">
             <template v-slot="{ row }">
-              <el-button type="text" size="small" @click="$router.push('/employees/detail/'+row.id)">查看</el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="$router.push('/employees/detail/' + row.id)"
+              >查看</el-button>
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="onAssignRole(row.id)"
+              >角色</el-button>
               <el-button
                 type="text"
                 size="small"
@@ -183,17 +203,40 @@
         <el-button type="primary" @click="handelConfirm">确定</el-button>
       </el-row>
     </el-dialog>
+    <el-dialog title="分配角色" :visible="showAssignRoleDialog">
+      <el-checkbox-group v-model="checkRoleList">
+        <el-checkbox
+          v-for="(item, index) in roleList"
+          :key="index"
+          :label="item.id"
+        >{{ item.name }}</el-checkbox>
+      </el-checkbox-group>
+      <el-row slot="footer" type="flex" justify="center">
+        <el-button @click="showAssignRoleDialog = false">取消</el-button>
+        <el-button
+          type="primary"
+          @click="handleAssignRoleConfirm"
+        >确定</el-button>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getEmployeeList, addEmployee, delEmployee } from '@/api/employees.js'
+import {
+  getEmployeeList,
+  addEmployee,
+  delEmployee,
+  assignRoles
+} from '@/api/employees.js'
 import EmployeeEnum from '@/api/constant/employees.js'
 import QrcodeVue from 'qrcode.vue'
 import { getDepartments } from '@/api/departments'
 import { tranListToTreeDate } from '@/utils'
 import { pick } from 'lodash'
 import { formatDate } from '@/filters'
+import { getRoleList } from '@/api/setting'
+import { getEmplyeeBaseInfo } from '@/api/user'
 export default {
   name: 'Employees',
   components: {
@@ -289,7 +332,10 @@ export default {
       },
       formOfEmploymentOptions: EmployeeEnum.informaltype,
       deptsList: [],
-      showDeptsTree: false
+      showDeptsTree: false,
+      checkRoleList: [],
+      showAssignRoleDialog: false,
+      roleList: []
     }
   },
   created() {
@@ -298,24 +344,45 @@ export default {
   },
   mounted() {},
   methods: {
+    async onAssignRole(id) {
+      this.currentUserId = id
+      const res = await getRoleList({ page: 1, pagesize: 100 })
+      const { roleIds } = await getEmplyeeBaseInfo(id)
+      this.checkRoleList = roleIds
+      this.roleList = res.rows
+      this.showAssignRoleDialog = true
+    },
+    async handleAssignRoleConfirm() {
+      await assignRoles({
+        id: this.currentUserId,
+        roleIds: this.checkRoleList
+      })
+      this.$message.success('操作成功')
+      this.showAssignRoleDialog = false
+    },
     onExport() {
-      import('@/vendor/Export2Excel').then(async excel => {
+      import('@/vendor/Export2Excel').then(async(excel) => {
         const headers = {
-          '手机号': 'mobile',
-          '姓名': 'username',
-          '入职日期': 'timeOfEntry',
-          '聘用形式': 'formOfEmployment',
-          '转正日期': 'correctionTime',
-          '工号': 'workNumber',
-          '部门': 'departmentName'
+          手机号: 'mobile',
+          姓名: 'username',
+          入职日期: 'timeOfEntry',
+          聘用形式: 'formOfEmployment',
+          转正日期: 'correctionTime',
+          工号: 'workNumber',
+          部门: 'departmentName'
         }
-        const { rows } = await getEmployeeList({ page: 1, size: this.page.total })
+        const { rows } = await getEmployeeList({
+          page: 1,
+          size: this.page.total
+        })
         console.log(rows)
-        const data = rows.map(t => {
+        const data = rows.map((t) => {
           const n = pick(t, Object.values(headers))
           n.timeOfEntry = formatDate(n.timeOfEntry)
           n.correctionTime = formatDate(n.correctionTime)
-          n.formOfEmployment = this.$options.filters.formOfEmployment(n.formOfEmployment)
+          n.formOfEmployment = this.$options.filters.formOfEmployment(
+            n.formOfEmployment
+          )
           return Object.values(n)
         })
         excel.export_json_to_excel({
@@ -388,8 +455,8 @@ export default {
 }
 </script>
 
-<style scope lang='scss'>
-.el-dialog__body{
+<style scope lang="scss">
+.el-dialog__body {
   display: flex;
   justify-content: center;
 }
