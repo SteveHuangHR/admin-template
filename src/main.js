@@ -4,7 +4,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+// import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
 
@@ -39,14 +39,36 @@ Vue.use(Ui)
 //   const { mockXHR } = require('../mock')
 //   mockXHR()
 // }
-
+// 只在开放阶段使用测试语句
+if (process.env.NODE_ENV === 'development') {
+  require('../mock/rzzt')
+}
+// import '../mock/rzzt'
 // set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
+// Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-// Vue.use(ElementUI)
+Vue.use(ElementUI)
 
 Vue.config.productionTip = false
-
+// 解决公共方法
+// 1.原型链
+// Vue.prototype.checkPermission = function(key) {
+//   return !this.$store.state.user.userInfo.roles.points.includes(key)
+// }
+// 2.混入
+Vue.mixin({
+  methods: {
+    checkPermission: function(key) {
+      // return !this.$store.state.user.userInfo.roles.points.includes(key)
+      // 防止公共代码报错,使用内有数值的数据
+      try {
+        return !this.$store.state.user.userInfo.roles.points.includes(key)
+      } catch (e) {
+        return false
+      }
+    }
+  }
+})
 new Vue({
   el: '#app',
   router,

@@ -1,4 +1,4 @@
-import router, { constantRoutes, asyncRoutes } from '@/router/index.js'
+import router from '@/router/index.js'
 import store from '@/store/index.js'
 // 通过路由守卫进行页面跳转
 // 跳转之前-前置守卫
@@ -16,11 +16,12 @@ router.beforeEach(async(to, from, next) => {
       roles: { menus }
     } = await store.dispatch('user/getUserInfo')
     // const filterRoutes = asyncRoutes // 放开所有权限
-    const filterRoutes = asyncRoutes.filter(t =>
-      menus.includes(t.children[0].name)
+    const filterRoutes = await store.dispatch(
+      'permission/generateRoutes',
+      menus
     )
-    console.log(filterRoutes)
-    router.options.routes = [...constantRoutes, ...filterRoutes]
+    // console.log(filterRoutes)
+    // router.options.routes = [...constantRoutes, ...filterRoutes]
     router.addRoutes([
       ...filterRoutes,
       { path: '*', redirect: '/404', hidden: true }

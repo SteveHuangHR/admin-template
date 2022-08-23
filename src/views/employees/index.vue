@@ -277,7 +277,7 @@ export default {
             trigger: 'blur'
           },
           {
-            pattern: /^.{1,4}$/,
+            pattern: /^.{1,10}$/,
             message: '用户名1-4位',
             trigger: 'blur'
           }

@@ -3,25 +3,44 @@
     <div class="app-container">
       <el-card class="tree-card">
         <TreeTools :data="company">
-          <el-dropdown-item @click.native="onAdd(company)">添加子部门</el-dropdown-item>
+          <el-dropdown-item
+            :disabled="checkPermission('add-dept')"
+            @click.native="onAdd(company)"
+          >添加子部门</el-dropdown-item>
         </TreeTools>
         <el-tree :data="list" :props="{ label: 'name' }" default-expand-all>
           <TreeTools slot-scope="{ data }" :data="data">
-            <el-dropdown-item @click.native="onAdd(data)">添加子部门</el-dropdown-item>
-            <el-dropdown-item @click.native="onUpdate(data)">编辑部门</el-dropdown-item>
-            <el-dropdown-item @click.native="onDel(data.id)">删除部门</el-dropdown-item>
+            <el-dropdown-item
+              :disabled="checkPermission('add-dept')"
+              @click.native="onAdd(data)"
+            >新增子部门</el-dropdown-item>
+            <el-dropdown-item
+              @click.native="onUpdate(data)"
+            >编辑部门</el-dropdown-item>
+            <el-dropdown-item
+              @click.native="onDel(data.id)"
+            >删除部门</el-dropdown-item>
           </TreeTools>
         </el-tree>
       </el-card>
     </div>
     <!-- <add-dept :show-dialog="showDialog" @update-show-dialog='showDialog=$event' ></add-dept> -->
-    <add-dept ref="addDeptRef" :show-dialog.sync="showDialog" :node="currentNodes" @success="getDepartments"></add-dept>
+    <add-dept
+      ref="addDeptRef"
+      :show-dialog.sync="showDialog"
+      :node="currentNodes"
+      @success="getDepartments"
+    ></add-dept>
   </div>
 </template>
 
 <script>
 import TreeTools from './components/tree-tools.vue'
-import { delDepartment, getDepartments, getDepartmentById } from '@/api/departments.js'
+import {
+  delDepartment,
+  getDepartments,
+  getDepartmentById
+} from '@/api/departments.js'
 import { tranListToTreeDate } from '@/utils/index.js'
 import AddDept from './components/add-dept.vue'
 export default {
@@ -54,7 +73,10 @@ export default {
   },
   mounted() {},
   methods: {
-    async  getDepartments() {
+    // checkPermission(key) {
+    //   return !this.$store.state.user.userInfo.roles.points.includes(key)
+    // },
+    async getDepartments() {
       const res = await getDepartments()
       this.company.name = res.companyName
       this.list = tranListToTreeDate(res.depts, '')
@@ -73,15 +95,15 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async action => {
-        await delDepartment(id)
-        // 提示成功
-        this.$message.success('删除成功')
-        // 刷新 列表
-        this.getDepartments()
-      }).catch(() => {
-
       })
+        .then(async(action) => {
+          await delDepartment(id)
+          // 提示成功
+          this.$message.success('删除成功')
+          // 刷新 列表
+          this.getDepartments()
+        })
+        .catch(() => {})
     }
   }
 }

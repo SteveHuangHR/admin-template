@@ -28,6 +28,7 @@ export default {
     logout(context) {
       context.commit('removeToken')
       context.commit('removeUserInfo')
+      context.commit('permission/removeRoutes', null, { root: true })
     },
     async getUserInfo(context) {
       const u = await getUserBaseInfo()
