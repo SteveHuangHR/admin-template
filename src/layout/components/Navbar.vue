@@ -10,11 +10,20 @@
       <span class="breadBtn">体验版</span>
     </div>
     <!-- <breadcrumb class="breadcrumb-container" /> -->
-
     <div class="right-menu">
+      <Screenfull class="right-menu-item"></Screenfull>
+      <ThemePicker
+        class="right-menu-item"
+        style="position: relative; top: 7px"
+      ></ThemePicker>
+      <LangSelect class="right-menu-item"></LangSelect>
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img v-imgerror="require('@/assets/common/head.jpg')" :src="avatar" class="user-avatar" />
+          <img
+            v-imgerror="require('@/assets/common/head.jpg')"
+            :src="avatar"
+            class="user-avatar"
+          />
           <span class="name">{{ name }}</span>
           <i class="el-icon-caret-bottom" style="color: #fff" />
         </div>
@@ -38,22 +47,22 @@
 import { mapGetters } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import Screenfull from '@/components/Screenfull'
+import ThemePicker from '@/components/ThemePicker'
+import LangSelect from '@/components/LangSelect'
 export default {
   components: {
     // Breadcrumb,
-    Hamburger
+    Hamburger,
+    Screenfull,
+    ThemePicker,
+    LangSelect
   },
   data() {
-    return {
-
-    }
+    return {}
   },
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'avatar',
-      'name'
-    ])
+    ...mapGetters(['sidebar', 'avatar', 'name'])
   },
   methods: {
     toggleSideBar() {
@@ -141,7 +150,7 @@ export default {
       height: 100%;
       font-size: 18px;
       color: #5a5e66;
-      vertical-align: text-bottom;
+      // vertical-align: text-bottom;
 
       &.hover-effect {
         cursor: pointer;

@@ -1,10 +1,15 @@
 <template>
   <div>
     <el-row type="flex" justify="end">
-      <el-select v-model="currentYear" size="small">
-        <el-option v-for="t in yearList" :key="t" :value="t" :label="t"></el-option>
+      <el-select v-model="currentYear" size="small" @change="onChange">
+        <el-option
+          v-for="t in yearList"
+          :key="t"
+          :value="t"
+          :label="t"
+        ></el-option>
       </el-select>
-      <el-select v-model="currentMonth" size="small">
+      <el-select v-model="currentMonth" size="small" @change="onChange">
         <el-option v-for="t in 12" :key="t" :value="t" :label="t"></el-option>
       </el-select>
     </el-row>
@@ -27,11 +32,14 @@ export default {
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth() + 1
-    const yearList = []
-    for (var i = -5; i <= 5; i++) {
-      yearList.push(currentYear + i)
-    }
-
+    // const yearList = []
+    // for (var i = -5; i <= 5; i++) {
+    //   yearList.push(currentYear + i)
+    // }
+    const yearList = Array.from(
+      { length: 13 },
+      (t, i) => new Date().getFullYear() + i - 6
+    )
     return {
       yearList,
       currentYear,
@@ -40,7 +48,11 @@ export default {
     }
   },
   computed: {},
-  methods: {}
+  methods: {
+    onChange() {
+      this.currentDate = new Date(this.currentYear + '-' + this.currentMonth)
+    }
+  }
 }
 </script>
 
